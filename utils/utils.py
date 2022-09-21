@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
 from models.operations import OPS
 
 class DotDict(dict):
@@ -154,7 +155,14 @@ def MAE(scores, targets):
 
 @mask('V', True)
 def CoraAccuracy(scores, targets):
-    return (scores.argmax(1) == targets).float().mean().item()
+    #return (scores.argmax(1) == targets).float().mean().item()
+    predict = scores.detach().numpy()
+    label = targets.detach().numpy()
+    if len(predict.shape) == 2:
+        predict = np.argmax(predict, axis=1)
+    else:
+        predict = [1 if p > 0.5 else 0 for p in predict]
+    return accuracy_score(label, predict)
 
 # ----------------------------------------------------------------
 # loss functions

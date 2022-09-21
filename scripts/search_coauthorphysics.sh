@@ -4,11 +4,11 @@ python search.py \
 --nb_classes 5 \
 --data_clip 1.0 \
 --in_dim_V 8415 \
---batch 32 \
+--batch 1 \
 --node_dim 128 \
 --pos_encode 0 \
 --nb_layers 3 \
---nb_nodes  2 \
+--nb_nodes  1 \
 --dropout 0.2 \
 --portion 0.5 \
 --search_mode 'train' \
@@ -17,4 +17,4 @@ python search.py \
 --arch_save 'archs/folder5' \
 --batchnorm_op \
 --log_name 'node_CoauthorPhysics_search.log' \
---epoch 200
+--epoch 1
