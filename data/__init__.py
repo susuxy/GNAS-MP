@@ -10,6 +10,9 @@ from data.cora import CoraDataset
 from models.networks import *
 from utils.utils import *
 
+from data.citeseer import CiteseerDataset
+from data.amazoncomputer import AmazonComputerDataset
+from data.coauthorphysics import CoauthorPhysicsDataset
 
 class TransInput(nn.Module):
 
@@ -72,6 +75,8 @@ def get_trans_input(args):
         trans_input = nn.Linear(args.in_dim_V, args.node_dim)
     elif args.data in ['QM9']:
         trans_input = nn.Linear(args.in_dim_V, args.node_dim)
+    elif args.data in ['Citeseer', 'AmazonComputer', 'CoauthorPhysics']:
+        trans_input = nn.Linear(args.in_dim_V, args.node_dim)
     else:
         raise Exception('Unknown dataset!')
     return trans_input
@@ -87,6 +92,8 @@ def get_loss_fn(args):
     elif args.data in ['CIFAR10', 'MNIST']:
         loss_fn = SuperPixCriterion()
     elif args.data in ['Cora']:
+        loss_fn = CiteCriterion()
+    elif args.data in ['Citeseer', 'CoauthorPhysics', 'AmazonComputer']:
         loss_fn = CiteCriterion()
     else:
         raise Exception('Unknown dataset!')
@@ -106,6 +113,12 @@ def load_data(args):
         return SBMsDataset(args.data)
     elif args.data in ['Cora']:
         return CoraDataset(args.data)
+    elif args.data in ['Citeseer']:
+        return CiteseerDataset(args.data)
+    elif args.data in ['AmazonComputer']:
+        return AmazonComputerDataset(args.data)
+    elif args.data in ['CoauthorPhysics']:
+        return CoauthorPhysicsDataset(args.data)
     else:
         raise Exception('Unknown dataset!')
 
@@ -120,6 +133,8 @@ def load_metric(args):
     elif args.data in ['SBM_CLUSTER', 'SBM_PATTERN']:
         return accuracy_SBM
     elif args.data in ['Cora']:
+        return CoraAccuracy
+    elif args.data in ['Citeseer', 'CoauthorPhysics', 'AmazonComputer']:
         return CoraAccuracy
     else:
         raise Exception('Unknown dataset!')
