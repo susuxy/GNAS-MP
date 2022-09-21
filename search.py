@@ -12,39 +12,53 @@ from models.model_search import *
 from utils.utils import *
 from models.architect import Architect
 
+import warnings
+# from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.syntax import Syntax
+import logging
+warnings.filterwarnings('ignore')
+
 
 class Searcher(object):
     
     def __init__(self, args):
 
         self.args = args
-        self.console = Console()
+        # self.console = Console()
 
-        self.console.log('=> [1] Initial settings')
+        # self.console.log('=> [1] Initial settings')
+        self.args.logger.info(('=> [1] Initial settings'))
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
-        torch.cuda.manual_seed(args.seed)
+        # torch.cuda.manual_seed(args.seed)
         cudnn.benchmark = True
         cudnn.enabled   = True
 
-        self.console.log('=> [2] Initial models')
+        # self.console.log('=> [2] Initial models')
+        self.args.logger.info('=> [2] Initial models')
         self.metric    = load_metric(args)
-        self.loss_fn   = get_loss_fn(args).cuda()
-        self.model     = Model_Search(args, get_trans_input(args), self.loss_fn).cuda()
-        self.console.log(f'=> Supernet Parameters: {count_parameters_in_MB(self.model)}', style = 'bold red')
+        self.loss_fn   = get_loss_fn(args).to(self.args.device)
+        self.model     = Model_Search(args, get_trans_input(args), self.loss_fn).to(self.args.device)
+        # self.console.log(f'=> Supernet Parameters: {count_parameters_in_MB(self.model)}', style = 'bold red')
+        self.args.logger.info(f'=> Supernet Parameters: {count_parameters_in_MB(self.model)}')
 
-        self.console.log(f'=> [3] Preparing dataset')
+        # self.console.log(f'=> [3] Preparing dataset')
+        self.args.logger.info(f'=> [3] Preparing dataset')
         self.dataset     = load_data(args)
         if args.pos_encode > 0:
             #! add positional encoding
-            self.console.log(f'==> [3.1] Adding positional encodings')
+            # self.console.log(f'==> [3.1] Adding positional encodings')
+            self.args.logger.info(f'==> [3.1] Adding positional encodings')
             self.dataset._add_positional_encodings(args.pos_encode)
         self.search_data = self.dataset.train
         self.val_data    = self.dataset.val
         self.test_data   = self.dataset.test
         self.load_dataloader()
 
-        self.console.log(f'=> [4] Initial optimizer')
+        # self.console.log(f'=> [4] Initial optimizer')
+        self.args.logger.info(f'=> [4] Initial optimizer')
         self.optimizer   = torch.optim.SGD(
             params       = self.model.parameters(),
             lr           = args.lr,
@@ -113,7 +127,8 @@ class Searcher(object):
 
     def run(self):
 
-        self.console.log(f'=> [4] Search & Train')
+        # self.console.log(f'=> [4] Search & Train')
+        self.args.logger.info(f'=> [4] Search & Train')
         for i_epoch in range(self.args.epochs):
             self.scheduler.step()
             self.lr = self.scheduler.get_lr()[0]
@@ -127,22 +142,27 @@ class Searcher(object):
                     yaml.dump(geno, f)
 
                 # => report genotype
-                self.console.log( geno )
-                for i in range(self.args.nb_layers):
-                    for p in self.model.group_arch_parameters()[i]:
-                        self.console.log(p.softmax(0).detach().cpu().numpy())
+                # self.console.log( geno )
+                self.args.logger.info( geno )
+                # for i in range(self.args.nb_layers):
+                #     for p in self.model.group_arch_parameters()[i]:
+                #         # self.console.log(p.softmax(0).detach().cpu().numpy())
+                #         self.args.logger.info(p.softmax(0).detach().cpu().numpy())
 
             search_result = self.search()
-            self.console.log(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
+            # self.console.log(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
+            self.args.logger.info(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
+
             # DecayScheduler().step(i_epoch)
 
             with torch.no_grad():
                 val_result  = self.infer(self.val_queue)
-                self.console.log(f"[yellow]=> valid result  [{i_epoch}] - loss: {val_result['loss']:.4f} - metric : {val_result['metric']:.4f}")
+                # self.console.log(f"[yellow]=> valid result  [{i_epoch}] - loss: {val_result['loss']:.4f} - metric : {val_result['metric']:.4f}")
+                self.args.logger.info(f"[yellow]=> valid result  [{i_epoch}] - loss: {val_result['loss']:.4f} - metric : {val_result['metric']:.4f}")
 
                 test_result = self.infer(self.test_queue)
-                self.console.log(f"[red]=> test  result  [{i_epoch}] - loss: {test_result['loss']:.4f} - metric : {test_result['metric']:.4f}")
-
+                # self.console.log(f"[red]=> test  result  [{i_epoch}] - loss: {test_result['loss']:.4f} - metric : {test_result['metric']:.4f}")
+                self.args.logger.info(f"[red]=> test  result  [{i_epoch}] - loss: {test_result['loss']:.4f} - metric : {test_result['metric']:.4f}")
 
     def search(self):
         
@@ -150,7 +170,7 @@ class Searcher(object):
         epoch_loss   = 0
         epoch_metric = 0
         desc         = '=> searching'
-        device       = torch.device('cuda')
+        device       = self.args.device
 
         with tqdm(self.para_queue, desc = desc, leave = False) as t:
             for i_step, (batch_graphs, batch_targets) in enumerate(t):
@@ -198,7 +218,7 @@ class Searcher(object):
         epoch_loss   = 0
         epoch_metric = 0
         desc         = '=> inferring'
-        device       = torch.device('cuda')
+        device       = self.args.device
 
         with tqdm(dataloader, desc = desc, leave = False) as t:
             for i_step, (batch_graphs, batch_targets) in enumerate(t):
@@ -219,13 +239,6 @@ class Searcher(object):
 
 
 if __name__ == '__main__':
-
-    import warnings
-    from rich.console import Console
-    from rich.table import Table
-    from rich.panel import Panel
-    from rich.syntax import Syntax
-    warnings.filterwarnings('ignore')
 
     parser = argparse.ArgumentParser('Rethinking Graph Neural Architecture Search From Message Passing')
     parser.add_argument('--task',               type = str,             default = 'graph_level')
@@ -258,15 +271,35 @@ if __name__ == '__main__':
     parser.add_argument('--report_freq',        type = int,             default = 1)
     parser.add_argument('--arch_save',          type = str,             default = './save_arch')
 
-    console = Console()
-    args = parser.parse_args()
+    parser.add_argument('--log_name', type=str, default='graph_zinc_search.log')
+
+    # console = Console()
+    # args = parser.parse_args()    
+    args = parser.parse_known_args()[0]
+    
+
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s', datefmt='%m/%d/%Y %H:%M:%S', level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    handler = logging.FileHandler(args.log_name)
+    logger.addHandler(handler)
+
+    args.logger = logger
+    args.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    args.logger.info(args)
+
+    with open(args.log_name, 'w') as f:
+        pass
+
+
     title   = "[bold][red]Searching & Training"
     vis = ""
     for key, val in vars(args).items():
         vis += f"{key}: {val}\n"
     vis = Syntax(vis[:-1], "yaml", theme="monokai", line_numbers=True)
     richPanel = Panel.fit(vis, title = title)
-    console.print(richPanel)
+    args.logger.info(richPanel)
+    # console.print(richPanel)
     data_path = os.path.join(args.arch_save, args.data)
     if not os.path.exists(data_path):
         os.mkdir(data_path)
