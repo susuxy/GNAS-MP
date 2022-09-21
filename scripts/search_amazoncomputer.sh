@@ -4,7 +4,7 @@ python search.py \
 --nb_classes 10 \
 --data_clip 1.0 \
 --in_dim_V 767 \
---batch 32 \
+--batch 1 \
 --node_dim 128 \
 --pos_encode 0 \
 --nb_layers 3 \
@@ -17,4 +17,4 @@ python search.py \
 --arch_save 'archs/folder5' \
 --batchnorm_op \
 --log_name 'node_AmazonComputer_search.log' \
---epoch 200
+--epoch 1

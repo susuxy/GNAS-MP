@@ -54,6 +54,7 @@ class Trainer(object):
 
 
     def load_model(self, file_path):
+        print(file_path)
         # file_path = self.args.load_genotypes
         if not os.path.isfile(file_path):
             raise Exception('Genotype file not found!')

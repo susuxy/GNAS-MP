@@ -73,6 +73,7 @@ class Searcher(object):
         )
 
         self.architect = Architect(self.model, self.args)
+        #print(self.model)
 
 
     def load_dataloader(self):
@@ -147,6 +148,7 @@ class Searcher(object):
 
 
     def run(self):
+        #return
 
         # self.console.log(f'=> [4] Search & Train')
         self.args.logger.info(f'=> [4] Search & Train')
@@ -165,11 +167,15 @@ class Searcher(object):
                 # => report genotype
                 # self.console.log( geno )
                 self.args.logger.info( geno )
+                # chendi: How this geno be used?????
+
+
                 # for i in range(self.args.nb_layers):
                 #     for p in self.model.group_arch_parameters()[i]:
                 #         # self.console.log(p.softmax(0).detach().cpu().numpy())
                 #         self.args.logger.info(p.softmax(0).detach().cpu().numpy())
 
+            #print(self.model)
             search_result = self.search('train')
             # self.console.log(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
             self.args.logger.info(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
@@ -225,7 +231,8 @@ class Searcher(object):
                 self.optimizer.step()
 
                 epoch_loss   += loss.detach().item()
-                epoch_metric += self.metric(batch_scores, batch_targets, graph = G, stage = stage)
+                metric = self.metric(batch_scores, batch_targets, graph = G, stage = stage)
+                epoch_metric += metric
                 t.set_postfix(lr         = self.lr,
                               loss       = epoch_loss / (i_step + 1),
                               metric     = epoch_metric / (i_step + 1))

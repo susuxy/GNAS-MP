@@ -4,16 +4,17 @@ python search.py \
 --nb_classes 6 \
 --data_clip 1.0 \
 --in_dim_V 3703 \
---batch 32 \
---node_dim 128 \
+--batch 1 \
+--node_dim 32 \
 --pos_encode 0 \
---nb_layers 1 \
---nb_nodes  2 \
---dropout 0.2 \
---portion 0.5 \
+--nb_layers 2 \
+--nb_nodes  1 \
+--dropout 0.5 \
+--portion 0.9 \
 --search_mode 'train' \
 --nb_workers 0 \
 --report_freq 1 \
 --arch_save 'archs/folder5' \
 --batchnorm_op \
---log_name 'node_citeseer_search.log' 
+--log_name 'node_citeseer_search.log' \
+--epochs 1 
