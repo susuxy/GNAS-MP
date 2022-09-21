@@ -4,16 +4,20 @@ import dgl.data
 
 class CiteseerDGL(torch.utils.data.Dataset):
 
-    def __init__(self):
+    def __init__(self, stage = 'train'):
+        self.stage = stage
         self.graph = dgl.data.CiteseerGraphDataset()[0]
         self.graph.edata['feat'] = torch.ones([self.graph.num_edges(), 1]).float()
     
     def __getitem__(self, i):
-        assert i == 0
+        #assert i == 0
         return self.graph, self.graph.ndata['label']
 
     def __len__(self):
-        return 1
+        if self.stage == 'train':
+            return 200
+        else:
+            return 1
 
 class CiteseerDataset(torch.utils.data.Dataset):
 
@@ -24,10 +28,9 @@ class CiteseerDataset(torch.utils.data.Dataset):
         start = time.time()
         print("[I] Loading dataset %s..." % (name))
         self.name  = name
-        base_graph = CiteseerDGL()
-        self.train = base_graph
-        self.val   = base_graph
-        self.test  = base_graph
+        self.train = CiteseerDGL("train")
+        self.val   = CiteseerDGL("valid")
+        self.test  = CiteseerDGL("test")
 
         print('train, test, val sizes :',len(self.train),len(self.test),len(self.val))
         print("[I] Finished loading.")
