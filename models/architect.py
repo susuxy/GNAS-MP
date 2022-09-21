@@ -37,20 +37,20 @@ class Architect(object):
             unrolled_model = self._construct_model_from_theta(theta.sub(eta, moment+dtheta))
         return unrolled_model
 
-    def step(self, input_train, target_train, input_valid, target_valid, eta, network_optimizer, unrolled): 
+    def step(self, input_train, target_train, input_valid, target_valid, eta, network_optimizer, unrolled, stage): 
         self.optimizer.zero_grad()
         if unrolled: 
             self._backward_step_unrolled(
                 input_train, target_train, input_valid, target_valid, eta, network_optimizer)
         else: 
             if self.args.search_mode == 'darts_1':
-                self._backward_step(input_valid, target_valid)
+                self._backward_step(input_valid, target_valid, stage)
             elif self.args.search_mode == 'train':
-                self._backward_step(input_train, target_train)
+                self._backward_step(input_train, target_train, stage)
         self.optimizer.step()
 
-    def _backward_step(self, input_valid, target_valid): 
-        loss = self.model._loss(input_valid, target_valid)
+    def _backward_step(self, input_valid, target_valid, stage): 
+        loss = self.model._loss(input_valid, target_valid, stage)
         loss.backward()
 
     def _backward_step_unrolled(self, input_train, target_train, input_valid, target_valid, eta, network_optimizer): 

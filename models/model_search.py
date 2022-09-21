@@ -31,7 +31,7 @@ class Model_Search(nn.Module):
         input = self.trans_input(input)
         G, V = input['G'], input['V']
         if self.args.pos_encode > 0:
-            V = V + self.position_encoding(G.ndata['pos_enc'].float().cuda())
+            V = V + self.position_encoding(G.ndata['pos_enc'].float().to(self.args.device))
         output = {'G': G, 'V': V}
         for i, cell in enumerate(self.cells):
             output = cell(output, arch_para_dict[i])
@@ -77,7 +77,7 @@ class Model_Search(nn.Module):
     def init_arch_para(self, arch_topo):
         arch_para = []
         for src, dst, w, ops in arch_topo:
-            arch_para.append(Variable(1e-3 * torch.rand(len(ops)).cuda(), requires_grad = True))
+            arch_para.append(Variable(1e-3 * torch.rand(len(ops)).to(self.args.device), requires_grad = True))
         return arch_para
 
 
@@ -113,7 +113,7 @@ class Model_Search(nn.Module):
 
 
     def new(self):
-        model_new = Model_Search(self.args, get_trans_input(self.args), self.loss_fn).cuda()
+        model_new = Model_Search(self.args, get_trans_input(self.args), self.loss_fn).to(self.args.device)
         for x, y in zip(model_new.arch_parameters(), self.arch_parameters()):
             x.data.copy_(y.data)
         return model_new
@@ -125,6 +125,6 @@ class Model_Search(nn.Module):
     def arch_parameters(self):
         return self.cell_arch_para
 
-    def _loss(self, input, targets):
+    def _loss(self, input, targets, stage):
         scores = self.forward(input)
-        return self.loss_fn(scores, targets)
+        return self.loss_fn(scores, targets, graph = input['G'], stage = stage)

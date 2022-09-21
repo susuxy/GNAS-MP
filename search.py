@@ -170,22 +170,22 @@ class Searcher(object):
                 #         # self.console.log(p.softmax(0).detach().cpu().numpy())
                 #         self.args.logger.info(p.softmax(0).detach().cpu().numpy())
 
-            search_result = self.search()
+            search_result = self.search('train')
             # self.console.log(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
             self.args.logger.info(f"[green]=> search result [{i_epoch}] - loss: {search_result['loss']:.4f} - metric : {search_result['metric']:.4f}",)
 
             # DecayScheduler().step(i_epoch)
 
             with torch.no_grad():
-                val_result  = self.infer(self.val_queue)
+                val_result  = self.infer(self.val_queue, 'val')
                 # self.console.log(f"[yellow]=> valid result  [{i_epoch}] - loss: {val_result['loss']:.4f} - metric : {val_result['metric']:.4f}")
                 self.args.logger.info(f"[yellow]=> valid result  [{i_epoch}] - loss: {val_result['loss']:.4f} - metric : {val_result['metric']:.4f}")
 
-                test_result = self.infer(self.test_queue)
+                test_result = self.infer(self.test_queue, 'test')
                 # self.console.log(f"[red]=> test  result  [{i_epoch}] - loss: {test_result['loss']:.4f} - metric : {test_result['metric']:.4f}")
                 self.args.logger.info(f"[red]=> test  result  [{i_epoch}] - loss: {test_result['loss']:.4f} - metric : {test_result['metric']:.4f}")
 
-    def search(self):
+    def search(self, stage):
         
         self.model.train()
         epoch_loss   = 0
@@ -214,17 +214,18 @@ class Searcher(object):
                     target_valid      = batch_targets_search,
                     eta               = self.lr,
                     network_optimizer = self.optimizer,
-                    unrolled          = self.args.unrolled
+                    unrolled          = self.args.unrolled,
+                    stage = stage
                 )
                 #! 4. optimizing model parameters
                 self.optimizer.zero_grad()
                 batch_scores  = self.model({'G': G, 'V': V})
-                loss          = self.loss_fn(batch_scores, batch_targets)
+                loss          = self.loss_fn(batch_scores, batch_targets, graph = G, stage = stage)
                 loss.backward()
                 self.optimizer.step()
 
                 epoch_loss   += loss.detach().item()
-                epoch_metric += self.metric(batch_scores, batch_targets)
+                epoch_metric += self.metric(batch_scores, batch_targets, graph = G, stage = stage)
                 t.set_postfix(lr         = self.lr,
                               loss       = epoch_loss / (i_step + 1),
                               metric     = epoch_metric / (i_step + 1))
@@ -233,7 +234,7 @@ class Searcher(object):
                 'metric' : epoch_metric / (i_step + 1)}
 
 
-    def infer(self, dataloader):
+    def infer(self, dataloader, stage):
 
         self.model.eval()
         epoch_loss   = 0
@@ -248,10 +249,10 @@ class Searcher(object):
                 # E = batch_graphs.edata['feat'].to(device)
                 batch_targets = batch_targets.to(device)
                 batch_scores  = self.model({'G': G, 'V': V})
-                loss          = self.loss_fn(batch_scores, batch_targets)
+                loss          = self.loss_fn(batch_scores, batch_targets, graph = G, stage = stage)
 
                 epoch_loss   += loss.detach().item()
-                epoch_metric += self.metric(batch_scores, batch_targets)
+                epoch_metric += self.metric(batch_scores, batch_targets, graph = G, stage = stage)
                 t.set_postfix(loss   = epoch_loss / (i_step + 1), 
                               metric = epoch_metric / (i_step + 1))
 
