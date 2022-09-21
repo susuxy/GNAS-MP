@@ -80,25 +80,46 @@ class Searcher(object):
         num_search  = int(len(self.search_data) * self.args.data_clip)
         indices     = list(range(num_search))
         split       = int(np.floor(self.args.portion * num_search))
-        self.console.log(f'=> Para set size: {split}, Arch set size: {num_search - split}')
-        
-        self.para_queue = torch.utils.data.DataLoader(
-            dataset     = self.search_data,
-            batch_size  = self.args.batch,
-            sampler     = torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
-            pin_memory  = True,
-            num_workers = self.args.nb_workers,
-            collate_fn  = self.dataset.collate
-        )
+        if split == 0:
+            self.args.logger.info(f'=> Split is {split}, Para set size: {num_search}, Arch set size: {num_search}')
+            self.para_queue = torch.utils.data.DataLoader(
+                dataset     = self.search_data,
+                batch_size  = self.args.batch,
+                sampler     = torch.utils.data.sampler.SubsetRandomSampler(indices),
+                pin_memory  = True,
+                num_workers = self.args.nb_workers,
+                collate_fn  = self.dataset.collate
+            )
 
-        self.arch_queue = torch.utils.data.DataLoader(
-            dataset     = self.search_data,
-            batch_size  = self.args.batch,
-            sampler     = torch.utils.data.sampler.SubsetRandomSampler(indices[split:]),
-            pin_memory  = True,
-            num_workers = self.args.nb_workers,
-            collate_fn  = self.dataset.collate
-        )
+            self.arch_queue = torch.utils.data.DataLoader(
+                dataset     = self.search_data,
+                batch_size  = self.args.batch,
+                sampler     = torch.utils.data.sampler.SubsetRandomSampler(indices),
+                pin_memory  = True,
+                num_workers = self.args.nb_workers,
+                collate_fn  = self.dataset.collate
+            )
+        else:
+            # self.console.log(f'=> Para set size: {split}, Arch set size: {num_search - split}')
+            self.args.logger.info(f'=> Para set size: {split}, Arch set size: {num_search - split}')
+            
+            self.para_queue = torch.utils.data.DataLoader(
+                dataset     = self.search_data,
+                batch_size  = self.args.batch,
+                sampler     = torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
+                pin_memory  = True,
+                num_workers = self.args.nb_workers,
+                collate_fn  = self.dataset.collate
+            )
+
+            self.arch_queue = torch.utils.data.DataLoader(
+                dataset     = self.search_data,
+                batch_size  = self.args.batch,
+                sampler     = torch.utils.data.sampler.SubsetRandomSampler(indices[split:]),
+                pin_memory  = True,
+                num_workers = self.args.nb_workers,
+                collate_fn  = self.dataset.collate
+            )
 
         num_valid = int(len(self.val_data) * self.args.data_clip)
         indices   = list(range(num_valid))
