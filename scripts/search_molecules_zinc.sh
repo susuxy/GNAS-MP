@@ -17,5 +17,6 @@ CUDA_VISIBLE_DEVICES=$DEVICES python search.py \
 --report_freq 1 \
 --arch_save 'archs/folder5' \
 --search_mode 'train' \
---batchnorm_op
+--batchnorm_op \
+--log_name 'graph_zinc_search.log'
 

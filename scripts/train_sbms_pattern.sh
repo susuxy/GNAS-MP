@@ -15,4 +15,5 @@ CUDA_VISIBLE_DEVICES=$DEVICES python train.py \
 --lr 1e-3 \
 --weight_decay 0.0 \
 --optimizer 'ADAM' \
---load_genotypes $GENOTYPE
+--load_genotypes $GENOTYPE \
+--log_name 'node_pattern_train.log'

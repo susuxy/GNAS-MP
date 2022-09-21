@@ -1,8 +1,6 @@
-# DEVICES=$1
 GENOTYPE=$1
 
-# CUDA_VISIBLE_DEVICES=$DEVICES 
-python train.py \
+python train_random_search.py \
 --task 'node_level' \
 --data 'SBM_CLUSTER' \
 --nb_classes 6 \
@@ -17,4 +15,4 @@ python train.py \
 --weight_decay 0.0 \
 --optimizer 'ADAM' \
 --load_genotypes $GENOTYPE \
---log_name 'node_cluster_train.log'
+--log_name 'node_cluster_train_denas.log'

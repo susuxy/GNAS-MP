@@ -1,14 +1,13 @@
-DEVICES=$1
-CUDA_VISIBLE_DEVICES=$DEVICES python search.py \
+python search.py \
 --task 'node_level' \
---data 'SBM_CLUSTER' \
---nb_classes 6 \
+--data 'AmazonComputer' \
+--nb_classes 10 \
 --data_clip 1.0 \
---in_dim_V 7 \
+--in_dim_V 767 \
 --batch 32 \
---node_dim 70 \
+--node_dim 128 \
 --pos_encode 0 \
---nb_layers 4 \
+--nb_layers 3 \
 --nb_nodes  2 \
 --dropout 0.2 \
 --portion 0.5 \
@@ -17,4 +16,5 @@ CUDA_VISIBLE_DEVICES=$DEVICES python search.py \
 --report_freq 1 \
 --arch_save 'archs/folder5' \
 --batchnorm_op \
---log_name 'node_cluster_search.log'
+--log_name 'node_AmazonComputer_search.log' \
+--epoch 200

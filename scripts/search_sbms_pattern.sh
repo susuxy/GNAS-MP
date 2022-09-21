@@ -17,4 +17,5 @@ CUDA_VISIBLE_DEVICES=$DEVICES python search.py \
 --report_freq 1 \
 --search_mode 'train' \
 --arch_save 'archs/folder5' \
---batchnorm_op 
+--batchnorm_op \
+--log_name 'node_pattern_search.log'

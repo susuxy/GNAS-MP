@@ -1,15 +1,13 @@
-# DEVICES=$1
 GENOTYPE=$1
 
-# CUDA_VISIBLE_DEVICES=$DEVICES 
 python train.py \
 --task 'node_level' \
---data 'SBM_CLUSTER' \
+--data 'Citeseer' \
 --nb_classes 6 \
---in_dim_V 7 \
+--in_dim_V 3703 \
 --pos_encode 0 \
 --batch 64 \
---node_dim 70 \
+--node_dim 128 \
 --dropout 0.2 \
 --batchnorm_op \
 --epochs 200 \
@@ -17,4 +15,4 @@ python train.py \
 --weight_decay 0.0 \
 --optimizer 'ADAM' \
 --load_genotypes $GENOTYPE \
---log_name 'node_cluster_train.log'
+--log_name 'node_citeseer_train.log'
