@@ -303,6 +303,7 @@ if __name__ == '__main__':
     # console = Console()
     # args    = parser.parse_args()
     args = parser.parse_known_args()[0]
+    print(args)
 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s', datefmt='%m/%d/%Y %H:%M:%S', level=logging.INFO)
     logger = logging.getLogger(__name__)

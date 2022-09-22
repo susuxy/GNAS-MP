@@ -222,7 +222,8 @@ class CiteCriterion(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.loss_fn = nn.CrossEntropyLoss(weight=None)
+        #self.loss_fn = nn.CrossEntropyLoss(weight=None)
+        self.loss_fn = getattr(F, 'nll_loss')
     
     @mask('V', True)
     def forward(self, pred, label):

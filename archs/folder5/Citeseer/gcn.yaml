@@ -1,0 +1,11 @@
+Genotype:
+- id: 0
+  topology:
+  - dst: 1
+    ops: V_Mean
+    src: 0
+- id: 1
+  topology:
+  - dst: 1
+    ops: V_Mean
+    src: 0

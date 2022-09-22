@@ -299,6 +299,7 @@ if __name__ == '__main__':
     parser.add_argument('--arch_weight_decay',  type = float,           default =1e-3)
     parser.add_argument('--report_freq',        type = int,             default = 1)
     parser.add_argument('--arch_save',          type = str,             default = './save_arch')
+    parser.add_argument('--node_pooling', default=False, action='store_true', help='whether add a MLP before neighborhood aggregation')
 
     parser.add_argument('--log_name', type=str, default='graph_zinc_search.log')
 
