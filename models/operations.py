@@ -120,6 +120,7 @@ class V_Sum(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.pooling = NodePooling(args)
+        self.args = args
         
     def forward(self, input):
         G, V = input['G'], input['V']
@@ -136,6 +137,7 @@ class V_Min(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.pooling = NodePooling(args)
+        self.args = args
         
     def forward(self, input):
         G, V = input['G'], input['V']
