@@ -17,4 +17,4 @@ python search.py \
 --arch_save 'archs/folder5' \
 --batchnorm_op \
 --log_name 'node_citeseer_search.log' \
---epochs 1 
+--epochs 200 
