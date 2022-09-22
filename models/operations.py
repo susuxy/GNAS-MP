@@ -86,11 +86,14 @@ class V_Max(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.pooling = NodePooling(args)
+        self.args = args
 
     def forward(self, input):
         G, V = input['G'], input['V']
-        # G.ndata['V'] = V
-        G.ndata['V'] = self.pooling(V)
+        if self.args.node_pooling:
+            G.ndata['V'] = self.pooling(V)
+        else:
+            G.ndata['V'] = V
         G.update_all(fn.copy_u('V', 'M'), fn.max('M', 'V'))
         return G.ndata['V']
 
@@ -100,11 +103,14 @@ class V_Mean(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.pooling = NodePooling(args)
+        self.args = args
         
     def forward(self, input):
         G, V = input['G'], input['V']
-        # G.ndata['V'] = V
-        G.ndata['V'] = self.pooling(V)
+        if self.args.node_pooling:
+            G.ndata['V'] = self.pooling(V)
+        else:
+            G.ndata['V'] = V
         G.update_all(fn.copy_u('V', 'M'), fn.mean('M', 'V'))
         return G.ndata['V']
 
@@ -117,8 +123,10 @@ class V_Sum(nn.Module):
         
     def forward(self, input):
         G, V = input['G'], input['V']
-        # G.ndata['V'] = self.pooling(V)
-        G.ndata['V'] = V
+        if self.args.node_pooling:
+            G.ndata['V'] = self.pooling(V)
+        else:
+            G.ndata['V'] = V
         G.update_all(fn.copy_u('V', 'M'), fn.sum('M', 'V'))
         return G.ndata['V']
 
@@ -131,7 +139,10 @@ class V_Min(nn.Module):
         
     def forward(self, input):
         G, V = input['G'], input['V']
-        G.ndata['V'] = self.pooling(V)
+        if self.args.node_pooling:
+            G.ndata['V'] = self.pooling(V)
+        else:
+            G.ndata['V'] = V
         G.update_all(fn.copy_u('V', 'M'), fn.min('M', 'V'))
         return G.ndata['V']
 

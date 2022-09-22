@@ -292,6 +292,8 @@ if __name__ == '__main__':
     parser.add_argument('--weight_decay',   type = float,           default = 3e-4)
     parser.add_argument('--optimizer',      type = str,             default = 'ADAM')
     parser.add_argument('--patience',       type = int,             default = 10)
+    parser.add_argument('--node_pooling', default=False, action='store_true', help='whether add a MLP before neighborhood aggregation')
+
     # parser.add_argument('--load_genotypes', type = str,             required = True)
     parser.add_argument('--load_genotypes', type = str, default = 'archs/folder5/SBM_CLUSTER/49.yaml')
     parser.add_argument('--log_name', type=str, default='node_cluster_train.log')

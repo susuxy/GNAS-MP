@@ -7,7 +7,7 @@ python train.py \
 --in_dim_V 3703 \
 --pos_encode 0 \
 --batch 64 \
---node_dim 128 \
+--node_dim 256 \
 --dropout 0.2 \
 --batchnorm_op \
 --epochs 200 \
@@ -15,4 +15,5 @@ python train.py \
 --weight_decay 0.0 \
 --optimizer 'ADAM' \
 --load_genotypes $GENOTYPE \
---log_name 'node_citeseer_train.log'
+--log_name 'node_citeseer_train.log' \
+--nb_mlp_layer 1
