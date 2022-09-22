@@ -7,8 +7,11 @@ class CiteseerDGL(torch.utils.data.Dataset):
     def __init__(self, stage = 'train'):
         self.stage = stage
         self.graph = dgl.data.CiteseerGraphDataset()[0]
-        print(self.graph)
+        self.graph.ndata['train_mask'] = torch.ones(self.graph.num_nodes(), dtype=torch.bool)
+        self.graph.ndata['train_mask'][self.graph.ndata['val_mask']] = False
+        self.graph.ndata['train_mask'][self.graph.ndata['test_mask']] = False
         self.graph.edata['feat'] = torch.ones([self.graph.num_edges(), 1]).float()
+        print(f"new num of train is {torch.count_nonzero(self.graph.ndata['train_mask'])}")
     
     def __getitem__(self, i):
         #assert i == 0

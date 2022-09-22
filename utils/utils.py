@@ -158,6 +158,7 @@ def CoraAccuracy(scores, targets):
     #return (scores.argmax(1) == targets).float().mean().item()
     predict = scores.detach().numpy()
     label = targets.detach().numpy()
+    #print(f"shape of predict is {predict.shape}, shape of label is {predict.shape}")
     if len(predict.shape) == 2:
         predict = np.argmax(predict, axis=1)
     else:
